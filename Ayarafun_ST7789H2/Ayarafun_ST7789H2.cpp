@@ -288,10 +288,10 @@ void Ayarafun_ST7789H2::commonInit(const uint8_t *cmdList) {
 	
   if(hwSPI) { // Using hardware SPI
     SPI.begin();
-	SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
-    //SPI.setClockDivider(SPI_CLOCK_DIV2); // 8 MHz
-    //SPI.setBitOrder(MSBFIRST);
-    //SPI.setDataMode(SPI_MODE0);
+	//SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+    SPI.setClockDivider(SPI_CLOCK_DIV2); // 8 MHz
+    SPI.setBitOrder(MSBFIRST);
+    SPI.setDataMode(SPI_MODE0);
   } else {
     pinMode(_sclk, OUTPUT);
     pinMode(_sid , OUTPUT);
@@ -435,8 +435,10 @@ void Ayarafun_ST7789H2::initial(void) {
 // Initialization for ST7789H2 screens
 void Ayarafun_ST7789H2::begin(void) {
   commonInit(Bcmd);
-  SPI.beginTransaction(SPISettings(16000000, MSBFIRST, SPI_MODE0));
-  //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+  //SPI.setClockDivider(10); // 16 MHz
+  //SPI.setBitOrder(MSBFIRST);
+  //SPI.setDataMode(SPI_MODE0);
   digitalWrite(_bl, HIGH);
 }
 
