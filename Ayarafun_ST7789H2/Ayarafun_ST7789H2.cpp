@@ -59,6 +59,7 @@ Ayarafun_ST7789H2::Ayarafun_ST7789H2(int8_t cs, int8_t rs, int8_t sid, int8_t sc
 {
   _cs   = cs;
   _rs   = rs;
+  _miso = -1;
   _sid  = sid;
   _sclk = sclk;
   _rst  = rst;
@@ -82,10 +83,18 @@ Ayarafun_ST7789H2::Ayarafun_ST7789H2(int8_t cs, int8_t rs, int8_t sid, int8_t sc
 Ayarafun_ST7789H2::Ayarafun_ST7789H2(int8_t cs, int8_t rs, int8_t bl, int8_t rst) {
   _cs   = cs;
   _rs   = rs;
+  _miso = -1;
   _rst  = rst;
   _bl   = bl;
   hwSPI = true;
   _sid  = _sclk = 0;
+  if (_cs == 15) {
+    _sid  = 13;
+    _sclk = 14;
+  } else {
+    _sid  = 23;
+	_sclk = 18;
+  }
   // ---------------
   _width    = ST7789H2_TFTWIDTH;
   _height   = ST7789H2_TFTHEIGHT;
@@ -100,7 +109,7 @@ Ayarafun_ST7789H2::Ayarafun_ST7789H2(int8_t cs, int8_t rs, int8_t bl, int8_t rst
 
 inline void Ayarafun_ST7789H2::spiwrite(uint8_t c) {
   if (hwSPI) {
-    SPI.transfer(c);
+	SPI.transfer(c);
   } else {
 	  // Fast SPI bitbang swiped from LPD8806 library
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
@@ -283,11 +292,12 @@ void Ayarafun_ST7789H2::commonInit(const uint8_t *cmdList) {
 
   pinMode(_rs, OUTPUT);
   pinMode(_cs, OUTPUT);
-  pinMode(_bl, OUTPUT);
+  //pinMode(_bl, OUTPUT);
   
 	
   if(hwSPI) { // Using hardware SPI
-    SPI.begin();
+    //SPI.begin();
+	SPI.begin(_sclk, _miso, _sid, _cs);
 	//SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
     SPI.setClockDivider(SPI_CLOCK_DIV2); // 8 MHz
     SPI.setBitOrder(MSBFIRST);
@@ -304,7 +314,8 @@ void Ayarafun_ST7789H2::commonInit(const uint8_t *cmdList) {
     *sidport  &= ~sidpinmask;
 
 	}
-  digitalWrite(_bl, LOW);
+  //digitalWrite(_bl, LOW);
+  backlight(0);
 
   // toggle RST low to reset; CS low so it'll listen to us
   setCS(false);
@@ -439,7 +450,9 @@ void Ayarafun_ST7789H2::begin(void) {
   //SPI.setClockDivider(10); // 16 MHz
   //SPI.setBitOrder(MSBFIRST);
   //SPI.setDataMode(SPI_MODE0);
-  digitalWrite(_bl, HIGH);
+  //digitalWrite(_bl, HIGH);
+  backlight(1);
+
 }
 
 
@@ -468,7 +481,6 @@ void Ayarafun_ST7789H2::pushColor(uint16_t color) {
 
 void Ayarafun_ST7789H2::drawPixel(int16_t x, int16_t y, uint16_t color) {
   if((x < 0) ||(x >= _width) || (y < 0) || (y >= _height)) return;
-
   setAddrWindow(x,y,x+1,y+1);
   writedata16(color);
 }
@@ -490,8 +502,8 @@ void Ayarafun_ST7789H2::drawFastHLine(int16_t x, int16_t y, int16_t w,
   // Rudimentary clipping
   if((x >= _width) || (y >= _height)) return;
   if((x+w-1) >= _width)  w = _width-x;
+  
   setAddrWindow(x, y, x+w-1, y);
-
   writeColor(color, w);
 }
 
@@ -572,7 +584,10 @@ void Ayarafun_ST7789H2::setRotation(uint8_t m) {
 }
 
 void Ayarafun_ST7789H2::backlight(boolean i) {
-	digitalWrite(_bl, i);
+  if (_bl) {
+    pinMode(_bl, OUTPUT);
+    digitalWrite(_bl, i);
+  }	
 }
 
 void Ayarafun_ST7789H2::invertDisplay(boolean i) {

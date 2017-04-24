@@ -258,22 +258,22 @@ class Ayarafun_ST7789H2 : public Print {
 
 #if defined(__AVR__) || defined(CORE_TEENSY)
 volatile uint8_t *dataport, *clkport, *csport, *rsport;
-  uint8_t  _cs, _rs, _rst, _sid, _sclk, _bl,
+  uint8_t  _cs, _rs, _miso, _rst, _sid, _sclk, _bl,
            datapinmask, clkpinmask, cspinmask, rspinmask;
 #elif defined(__SAM3X8E__)
   Pio *dataport, *clkport, *csport, *rsport;
-  uint32_t  _cs, _rs, _rst, _sid, _sclk, _bl,
+  uint32_t  _cs, _rs, _miso, _rst, _sid, _sclk, _bl,
             datapinmask, clkpinmask, cspinmask, rspinmask;
 #elif defined(ESP32)
   volatile uint32_t *sidport, *clkport, *rsport, *csport;
-  int32_t  _cs, _rs, _rst, _sid, _sclk, _bl;
+  int32_t  _cs, _rs, _miso, _rst, _sid, _sclk, _bl;
   uint32_t  sidpinmask, clkpinmask, cspinmask, rspinmask;
 #elif defined(ARDUINO_ARCH_ESP8266)
 #define ST7789H2_USE_GENERIC_IO
 #define ST7789H2_USE_HWSPI_ONLY
 #define ST7789H2_USE_HWSPI_WRITE16
 #define ST7789H2_USE_HWSPI_WRITEPATTERN
-  uint8_t _cs, _rs, _rst, _sid, _sclk, _bl;
+  uint8_t _cs, _rs, _miso, _rst, _sid, _sclk, _bl;
 #endif
 
  protected:
